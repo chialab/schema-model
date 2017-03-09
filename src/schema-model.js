@@ -139,9 +139,9 @@ export class SchemaModel {
             let res = this.validate(dataToValidate, options);
             if (!res.valid) {
                 if (res.error && res.error.message) {
-                    throw new Error(res.error.message, res);
+                    throw new Error(res.error.message);
                 } else if (res.missing.length) {
-                    throw new Error('Missing $ref schemas', res.missing.join(', '));
+                    throw new Error(`Missing $ref schemas: ${res.missing.join(', ')}`);
                 }
             } else {
                 set(this, dataToValidate);
