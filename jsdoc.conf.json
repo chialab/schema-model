@@ -1,0 +1,11 @@
+{
+  "source": {
+    "include": ["src"]
+  },
+  "opts": {
+    "template": "./doc-template",
+    "destination": "./docs",
+    "recurse": true,
+    "outputSourceFiles": false
+  }
+}

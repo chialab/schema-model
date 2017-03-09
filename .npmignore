@@ -1,0 +1,11 @@
+npm-debug.log
+/node_modules
+/bower_components
+/coverage
+/test
+.eslint*
+.editorconfig
+.git*
+.babelrc
+gulpfile.js
+rollup.config.js
