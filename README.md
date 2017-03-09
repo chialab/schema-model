@@ -2,8 +2,14 @@
 
 Generate Model classes based on JSON Schema definition.
 
+[![Travis](https://img.shields.io/travis/Chialab/schema-model.svg?maxAge=2592000)](https://travis-ci.org/Chialab/schema-model)
+[![Code coverage](https://codecov.io/gh/Chialab/schema-model/graph/badge.svg)](https://codecov.io/gh/Chialab/schema-model)
+[![NPM](https://img.shields.io/npm/v/@chialab/schema-model.svg)](https://npmjs.org/packages/@chialab/schema-model)
+
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/chialab-sl-013.svg)](https://saucelabs.com/u/chialab-sl-013)
+
 ## Install
-[![npm](https://img.shields.io/npm/v/@chialab/schema-model.svg)](https://npmjs.org/packages/@chialab/schema-model)
+
 ```sh
 npm install @chialab/schema-model --save
 ```
