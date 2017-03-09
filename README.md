@@ -1,6 +1,6 @@
 # SchemaModel
 
-Generate Model classes based on JSON Schema definition.
+Generate Model classes based on [JSON Schema](http://json-schema.org/) definition.
 
 [![Travis](https://img.shields.io/travis/Chialab/schema-model.svg?maxAge=2592000)](https://travis-ci.org/Chialab/schema-model)
 [![Code coverage](https://codecov.io/gh/Chialab/schema-model/graph/badge.svg)](https://codecov.io/gh/Chialab/schema-model)
