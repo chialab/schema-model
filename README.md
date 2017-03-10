@@ -187,17 +187,14 @@ class PersonModel extends SchemaModel {
         };
     }
 
-    get married() {
-        if (this.hasOwnProperty('__married')) {
-            return this.__married;
-        }
-        return false;
+    set married(married) {
+        // passing the `internal: true` options you can set a private property.
+        this.set('married', !!married, { internal: true });
     }
 
-    set married(married) {
-        // references which start with `__` will be ignored by the `.toJSON` method
-        // so you can use it as private properties.
-        this.__married = married;
+    get married() {
+        // setup a default value for a property
+        return this.get('married', { internal: true }) || false;
     }
 }
 
