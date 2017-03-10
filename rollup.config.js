@@ -13,7 +13,7 @@ module.exports = {
     sourceMap: process.env.NODE_ENV !== 'production' ? 'inline' : false,
     format: 'umd',
     moduleName: 'SchemaModel',
-    entry: 'src/schema-model.js',
+    entry: './index.js',
     useStrict: false,
     plugins: [
         json(),
@@ -28,6 +28,7 @@ module.exports = {
         }),
         babel({
             include: [
+                './index.js',
                 'node_modules/**/*.{js,jsx}',
                 'src/**/*.{js,jsx}',
                 'test/**/*.{js,jsx}',

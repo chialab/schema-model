@@ -4,4 +4,5 @@
  *
  * Generate Model classes based on JSON Schema definition.
  */
-export * from './src/schema-model.js';
+import { SchemaModel } from './src/schema-model.js';
+export default SchemaModel;
