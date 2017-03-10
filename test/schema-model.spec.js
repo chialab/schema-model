@@ -13,8 +13,8 @@ describe('Unit: SchemaModel', () => {
         });
 
         it('should instantiate the model', () => {
-            assert(model.get('id'), 'entry1');
-            assert(model.id, 'entry1');
+            assert.equal(model.get('id'), 'entry1');
+            assert.equal(model.id, 'entry1');
         });
 
         it('should handle complex data', () => {
@@ -86,6 +86,41 @@ describe('Unit: SchemaModel', () => {
             let validation = model.validate();
             assert.equal(validation.valid, false);
             assert.equal(validation.error.message, 'Missing required property: id');
+        });
+    });
+
+    describe('use custom getters', () => {
+        const Model = class extends SchemaModel {
+            static get schema() {
+                return SCHEMA;
+            }
+
+            get id() {
+                return this.get('id', { internal: true }) || 'entry1';
+            }
+
+            set id(id) {
+                this.set('id', id, { internal: true });
+            }
+
+            get name() {
+                return this.get('privateName', { internal: true });
+            }
+
+            set name(name) {
+                this.set('privateName', name, { internal: true });
+            }
+        };
+
+        it('should set internal properties', () => {
+            let model = new Model({ name: 'Alan' });
+            assert(model.validate().valid);
+            assert.equal(model.get('id'), 'entry1');
+            assert.equal(model.id, 'entry1');
+            assert.equal(model.get('name'), 'Alan');
+            assert.equal(model.name, 'Alan');
+            assert.equal(model.get('privateName', { internal: true }), 'Alan');
+            assert.equal(model.privateName, undefined);
         });
     });
 });

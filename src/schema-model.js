@@ -5,27 +5,27 @@ import tv4 from 'tv4';
  * @private
  *
  * @param {Object|Array} obj The object to clone.
- * @param {Function} filter An optional function to filter object's children.
+ * @param {Function} callback An optional function which runs before inserting a property.
  * @return {Object|Array} The clone of the object.
  */
-function clone(obj, filter) {
+function clone(obj, callback) {
+    callback = callback || function(scope, key, prop) { return prop; };
     if (Array.isArray(obj)) {
-        return obj.map((entry) => {
+        return obj.map((entry, index) => {
+            entry = callback(obj, index, entry);
             if (typeof entry === 'object') {
-                return clone(entry);
+                return clone(entry, callback);
             }
             return entry;
         });
     }
     let res = {};
-    filter = filter || function() { return true; };
     Object.keys(obj).forEach((k) => {
-        if (filter(k, obj[k])) {
-            if (typeof obj[k] === 'object') {
-                res[k] = clone(obj[k]);
-            } else {
-                res[k] = obj[k];
-            }
+        let val = callback(obj, k, obj[k]);
+        if (typeof val === 'object') {
+            res[k] = clone(val, callback);
+        } else {
+            res[k] = val;
         }
     });
     return res;
@@ -53,18 +53,58 @@ function merge(obj1, obj2) {
     });
     return res;
 }
+
+/**
+ * Get data from an object.
+ * @private
+ *
+ * @param {Object} scope The object to use.
+ * @param {String} k The data key.
+ * @param {Boolean} internal Should get value has private property.
+ * @return {any} The value of the object for the given key.
+ */
+function get(scope, k, internal) {
+    if (internal) {
+        k = getSymbol(k);
+    }
+    return scope[k];
+}
 /**
  * Merge data to another object.
  * @private
  *
  * @param {Object} scope The object to update.
  * @param {Object} data The object to merge.
+ * @param {Boolean} internal Should set value has private property.
  */
-function set(scope, data) {
+function set(scope, data, internal) {
     Object.keys(data).forEach((k) => {
-        scope[k] = data[k];
+        let ok = k;
+        if (internal) {
+            k = getSymbol(k);
+        }
+        scope[k] = data[ok];
     });
 }
+/**
+ * Create a private symbol.
+ * @private
+ *
+ * @param {String} name The name of the property to privatize.
+ * @return {Symbol|String}
+ */
+function getSymbol(name) {
+    if (!getSymbol.cache[name]) {
+        if (self.Symbol) {
+            getSymbol.cache[name] = self.Symbol(name);
+        } else {
+            getSymbol.cache[name] = `__${name}`;
+        }
+    }
+    return getSymbol.cache[name];
+}
+
+getSymbol.cache = {};
 
 export class SchemaModel {
     /**
@@ -90,6 +130,7 @@ export class SchemaModel {
     static get defaultOptions() {
         return {
             validate: true,
+            internal: false,
         };
     }
     /**
@@ -99,6 +140,19 @@ export class SchemaModel {
      */
     static get schema() {
         throw new Error('Missing schema');
+    }
+    /**
+     * The resolved schema of the model.
+     * @type {Object}
+     * @memberof SchemaModel
+     */
+    static get resolvedSchema() {
+        let schema = this.schema;
+        if (schema['$ref'] !== undefined) {
+            tv4.addSchema('', schema);
+            schema = tv4.getSchema(schema['$ref']);
+        }
+        return schema;
     }
     /**
      * Generate Model classes based on JSON Schema definition.
@@ -116,10 +170,12 @@ export class SchemaModel {
      * Get a property value.
      *
      * @param {String} name The property name to retrieve.
+     * @param {Object} options Optional options for data getting.
      * @return {any} The property value.
      */
-    get(name) {
-        return this[name];
+    get(name, options) {
+        options = merge(this.constructor.defaultOptions, options || {});
+        return get(this, name, options.internal);
     }
     /**
      * Set a bunch of properties.
@@ -134,21 +190,22 @@ export class SchemaModel {
             }, options);
         }
         options = merge(this.constructor.defaultOptions, value || {});
-        if (options.validate) {
+        if (!options.internal && options.validate) {
             let dataToValidate = merge(this.toJSON(), data);
             let res = this.validate(dataToValidate, options);
+            /* istanbul ignore if */
             if (!res.valid) {
                 if (res.error && res.error.message) {
                     throw new Error(res.error.message);
                 } else if (res.missing.length) {
                     throw new Error(`Missing $ref schemas: ${res.missing.join(', ')}`);
                 }
+                throw new Error('Validation failed');
             } else {
-                set(this, dataToValidate);
+                data = dataToValidate;
             }
-        } else {
-            set(this, data);
         }
+        set(this, data, options.internal);
     }
     /**
      * Validate a bunch of data or the model instance.
@@ -157,12 +214,13 @@ export class SchemaModel {
      * @return {Object} A validation result.
      */
     validate(data) {
-        data = data || this.toJSON();
+        data = data || this;
         let schema = this.constructor.schema;
         if (!schema.additionalProperties) {
             schema.additionalProperties = false;
         }
         let res = tv4.validateResult(data, schema);
+        /* istanbul ignore if  */
         if (res.valid && res.missing.length) {
             res.valid = false;
         }
@@ -174,8 +232,23 @@ export class SchemaModel {
      * @return {Object} A representation of the model as plain object.
      */
     toJSON() {
-        return clone(this, (key) =>
-            (key.indexOf('__') !== 0)
-        );
+        let schema = this.constructor.resolvedSchema;
+        let keys = (schema.properties && Object.keys(schema.properties)) || [];
+        let res = {};
+        keys.forEach((key) => {
+            let val = this.get(key);
+            if (val !== undefined) {
+                res[key] = this.get(key);
+            }
+        });
+        res = clone(res, (scope, key, prop) => {
+            if (prop instanceof SchemaModel) {
+                return prop.toJSON();
+            }
+            return prop;
+        });
+        return res;
     }
 }
+
+SchemaModel.symbols = {};
