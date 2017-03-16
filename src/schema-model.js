@@ -53,7 +53,6 @@ function merge(obj1, obj2) {
     });
     return res;
 }
-
 /**
  * Get data from an object.
  * @private
@@ -105,6 +104,37 @@ function getSymbol(name) {
 }
 
 getSymbol.cache = {};
+/**
+ * Get all root properties merging definition.
+ * @private
+ *
+ * @param {Object} schema The schema to analyze.
+ * @param {Object} validator The validator instance.
+ * @return {Object} A list of properties.
+ */
+function getProperties(schema, validator) {
+    let root = !validator;
+    if (root) {
+        validator = tv4.freshApi();
+        validator.addSchema('', schema);
+    }
+    if (schema.$ref) {
+        schema = validator.getSchema(schema.$ref);
+    }
+    if (schema.properties) {
+        return clone(schema.properties);
+    } else if (root) {
+        let res = {};
+        let defs = schema['anyOf'] || schema['allOf'] || schema['oneOf'];
+        if (defs) {
+            defs.forEach((def) => {
+                res = merge(res, getProperties(def, validator));
+            });
+        }
+        return res;
+    }
+    return {};
+}
 
 export class SchemaModel {
     /**
@@ -142,17 +172,12 @@ export class SchemaModel {
         throw new Error('Missing schema');
     }
     /**
-     * The resolved schema of the model.
+     * The schema merged properties.
      * @type {Object}
      * @memberof SchemaModel
      */
-    static get resolvedSchema() {
-        let schema = this.schema;
-        if (schema['$ref'] !== undefined) {
-            tv4.addSchema('', schema);
-            schema = tv4.getSchema(schema['$ref']);
-        }
-        return schema;
+    static get schemaProperties() {
+        return getProperties(this.schema);
     }
     /**
      * Generate Model classes based on JSON Schema definition.
@@ -216,9 +241,6 @@ export class SchemaModel {
     validate(data) {
         data = data || this;
         let schema = this.constructor.schema;
-        if (!schema.additionalProperties) {
-            schema.additionalProperties = false;
-        }
         let res = tv4.validateResult(data, schema);
         /* istanbul ignore if  */
         if (res.valid && res.missing.length) {
@@ -233,8 +255,7 @@ export class SchemaModel {
      * @return {Object} A representation of the model as plain object.
      */
     toJSON(stripUndefined) {
-        let schema = this.constructor.resolvedSchema;
-        let keys = (schema.properties && Object.keys(schema.properties)) || [];
+        let keys = Object.keys(this.constructor.schemaProperties);
         let res = {};
         keys.forEach((key) => {
             let val = this.get(key);
