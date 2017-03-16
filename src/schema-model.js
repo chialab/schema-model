@@ -82,7 +82,9 @@ function set(scope, data, internal) {
         if (internal) {
             k = getSymbol(k);
         }
-        scope[k] = data[ok];
+        if (scope[k] !== data[ok]) {
+            scope[k] = data[ok];
+        }
     });
 }
 /**
