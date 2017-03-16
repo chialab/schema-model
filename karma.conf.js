@@ -101,7 +101,6 @@ module.exports = function(config) {
 
     if (process.env.CI) {
         config.set({
-            concurrency: 1,
             client: {
                 captureConsole: false,
             },
