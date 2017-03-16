@@ -191,7 +191,7 @@ export class SchemaModel {
         }
         options = merge(this.constructor.defaultOptions, value || {});
         if (!options.internal && options.validate) {
-            let dataToValidate = merge(this.toJSON(), data);
+            let dataToValidate = merge(this.toJSON(true), data);
             let res = this.validate(dataToValidate, options);
             /* istanbul ignore if */
             if (!res.valid) {
@@ -229,21 +229,22 @@ export class SchemaModel {
     /**
      * Convert the model to a plain javascript object.
      *
+     * @param {Boolean} stripUndefined Strip undefined values from model.
      * @return {Object} A representation of the model as plain object.
      */
-    toJSON() {
+    toJSON(stripUndefined) {
         let schema = this.constructor.resolvedSchema;
         let keys = (schema.properties && Object.keys(schema.properties)) || [];
         let res = {};
         keys.forEach((key) => {
             let val = this.get(key);
-            if (val !== undefined) {
+            if (!stripUndefined || val !== undefined) {
                 res[key] = this.get(key);
             }
         });
         res = clone(res, (scope, key, prop) => {
             if (prop instanceof SchemaModel) {
-                return prop.toJSON();
+                return prop.toJSON(stripUndefined);
             }
             return prop;
         });
