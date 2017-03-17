@@ -22,7 +22,7 @@ function clone(obj, callback) {
     let res = {};
     Object.keys(obj).forEach((k) => {
         let val = callback(obj, k, obj[k]);
-        if (typeof val === 'object') {
+        if (val !== null && val !== undefined && typeof val === 'object') {
             res[k] = clone(val, callback);
         } else {
             res[k] = val;
@@ -261,8 +261,8 @@ export class SchemaModel {
         let res = {};
         keys.forEach((key) => {
             let val = this.get(key);
-            if (!stripUndefined || val !== undefined) {
-                res[key] = this.get(key);
+            if (!stripUndefined || (val !== undefined && val !== null)) {
+                res[key] = val;
             }
         });
         res = clone(res, (scope, key, prop) => {
