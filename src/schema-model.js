@@ -241,7 +241,7 @@ export class SchemaModel {
      * @return {Object} A validation result.
      */
     validate(data) {
-        data = data || this;
+        data = data || this.toJSON(true);
         let schema = this.constructor.schema;
         let res = tv4.validateResult(data, schema);
         /* istanbul ignore if  */
