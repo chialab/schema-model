@@ -1,5 +1,9 @@
 import tv4 from 'tv4';
 
+function isObject(val) {
+    return val !== null && val !== undefined && typeof val === 'object';
+}
+
 /**
  * Clone javascript objects.
  * @private
@@ -13,7 +17,7 @@ function clone(obj, callback) {
     if (Array.isArray(obj)) {
         return obj.map((entry, index) => {
             entry = callback(obj, index, entry);
-            if (typeof entry === 'object') {
+            if (isObject(entry)) {
                 return clone(entry, callback);
             }
             return entry;
@@ -22,7 +26,7 @@ function clone(obj, callback) {
     let res = {};
     Object.keys(obj).forEach((k) => {
         let val = callback(obj, k, obj[k]);
-        if (val !== null && val !== undefined && typeof val === 'object') {
+        if (isObject(val)) {
             res[k] = clone(val, callback);
         } else {
             res[k] = val;
@@ -41,8 +45,8 @@ function clone(obj, callback) {
 function merge(obj1, obj2) {
     let res = clone(obj1);
     Object.keys(obj2).forEach((key) => {
-        if (typeof obj2[key] === 'object') {
-            if (typeof res[key] === 'object') {
+        if (isObject(obj2[key])) {
+            if (isObject(res[key])) {
                 res[key] = merge(res[key], obj2[key]);
             } else {
                 res[key] = obj2[key];
@@ -139,6 +143,26 @@ function getProperties(schema, validator) {
 }
 
 export class SchemaModel {
+    /**
+     * Merge two objects in a new one.
+     *
+     * @param {Object} obj1 The initial object.
+     * @param {Object} obj2 The object to merge.
+     * @return {Object} The merged object.
+     */
+    static merge(...args) {
+        return merge(...args);
+    }
+    /**
+     * Clone javascript objects.
+     *
+     * @param {Object|Array} obj The object to clone.
+     * @param {Function} callback An optional function which runs before inserting a property.
+     * @return {Object|Array} The clone of the object.
+     */
+    static clone(...args) {
+        return clone(...args);
+    }
     /**
      * Create a new schema class extending SchemaModel.
      *
@@ -261,7 +285,7 @@ export class SchemaModel {
         let res = {};
         keys.forEach((key) => {
             let val = this.get(key);
-            if (!stripUndefined || (val !== undefined && val !== null)) {
+            if (!stripUndefined || val !== undefined) {
                 res[key] = val;
             }
         });
