@@ -100,8 +100,8 @@ function set(scope, data, internal) {
  */
 function getSymbol(name) {
     if (!getSymbol.cache[name]) {
-        if (self.Symbol) {
-            getSymbol.cache[name] = self.Symbol(name);
+        if (typeof Symbol !== 'undefined') {
+            getSymbol.cache[name] = Symbol(name);
         } else {
             getSymbol.cache[name] = `__${name}`;
         }
