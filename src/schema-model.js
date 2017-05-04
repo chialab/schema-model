@@ -142,6 +142,11 @@ function getProperties(schema, validator) {
     return {};
 }
 
+const DEFAULT_OPTIONS = {
+    validate: true,
+    internal: false,
+};
+
 export class SchemaModel {
     /**
      * Merge two objects in a new one.
@@ -174,19 +179,6 @@ export class SchemaModel {
             static get schema() {
                 return schema;
             }
-        };
-    }
-    /**
-     * Default model options.
-     * @type Object
-     * @memberof SchemaModel
-     *
-     * @property {Boolean} validate Should or not validate the model on update.
-     */
-    static get defaultOptions() {
-        return {
-            validate: true,
-            internal: false,
         };
     }
     /**
@@ -225,7 +217,7 @@ export class SchemaModel {
      * @return {any} The property value.
      */
     get(name, options) {
-        options = merge(this.constructor.defaultOptions, options || {});
+        options = merge(DEFAULT_OPTIONS, options || {});
         return get(this, name, options.internal);
     }
     /**
@@ -240,7 +232,7 @@ export class SchemaModel {
                 [data]: value,
             }, options);
         }
-        options = merge(this.constructor.defaultOptions, value || {});
+        options = merge(DEFAULT_OPTIONS, value || {});
         if (!options.internal && options.validate) {
             let dataToValidate = merge(this.toJSON(true), data);
             let res = this.validate(dataToValidate, options);
