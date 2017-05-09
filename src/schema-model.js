@@ -1,5 +1,15 @@
 import tv4 from 'tv4';
 
+tv4.addFormat('date-time', (data) => {
+    if (typeof data === 'string') {
+        data = new Date(data);
+    }
+    if ((data instanceof Date) && !isNaN(data.getTime())) {
+        return null;
+    }
+    return "Invalid date";
+});
+
 function isObject(val) {
     return val !== null && val !== undefined && typeof val === 'object';
 }
@@ -22,6 +32,8 @@ function clone(obj, callback) {
             }
             return entry;
         });
+    } else if (obj instanceof Date) {
+        return new Date(obj);
     }
     let res = {};
     Object.keys(obj).forEach((k) => {
