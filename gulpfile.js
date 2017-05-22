@@ -1,4 +1,5 @@
 /* eslint-env node */
+/* eslint-disable no-console */
 
 /**
  * Copyright 2017 Chialab. All Rights Reserved.
@@ -24,6 +25,9 @@
  * SOFTWARE.
  */
 
+const env = process.env;
+const project = require('./package.json');
+
 const path = require('path');
 const del = require('del');
 const mkdirp = require('mkdirp');
@@ -32,35 +36,38 @@ const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
 const rollup = require('rollup-stream');
 const eslint = require('gulp-eslint');
+const mocha = require('gulp-mocha');
 const sourcemaps = require('gulp-sourcemaps');
+const exec = require('child-process-promise').exec;
 const karma = require('karma');
 
-const env = process.env;
-const karmaConfig = path.resolve('./karma.conf.js');
 const DIST_PATH = 'dist';
 const SRC_PATH = 'src';
-const ENTRY = 'schema-model.js';
+const TMP_PATH = '.tmp';
+const ENTRY = path.basename(project.main || project.module);
 
 function clean() {
-    let p = path.join(DIST_PATH);
-    return del([p]).then(() => {
-        mkdirp.sync(p);
+    let paths = [DIST_PATH, TMP_PATH];
+    return del(paths).then(() => {
+        paths.forEach((p) => mkdirp.sync(p));
         return Promise.resolve();
     });
 }
 
 function lint() {
-    return gulp.src(path.join(SRC_PATH, ENTRY))
+    return gulp.src(SRC_PATH)
         .pipe(eslint())
         .pipe(eslint.format())
         .pipe(eslint.failAfterError());
 }
 
-function jsCompile() {
+function compile() {
+    env.NODE_ENV = 'production';
     return rollup('rollup.config.js')
         .on('error', (err) => {
             // eslint-disable-next-line
             console.error(err);
+            process.exit(1);
         })
         .pipe(source(ENTRY))
         .pipe(buffer())
@@ -71,54 +78,79 @@ function jsCompile() {
         .pipe(gulp.dest(DIST_PATH));
 }
 
-function jsMin() {
-    env.NODE_ENV = 'production';
-    env.min = true;
-
-    return jsCompile();
+function compileUnitTests() {
+    return rollup('rollup.config.js')
+        .on('error', (err) => {
+            // eslint-disable-next-line
+            console.error(err);
+            process.exit(1);
+        })
+        .pipe(source('specs.js', TMP_PATH))
+        .pipe(buffer())
+        .pipe(gulp.dest(TMP_PATH));
 }
 
-function jsWatch() {
-    return jsCompile(env.TMP_PATH)
+function unitNode() {
+    env.NODE_ENV = 'test';
+    env.TARGET = 'node';
+    return compileUnitTests().pipe(mocha());
+}
+
+function unitKarma(done) {
+    env.NODE_ENV = 'test';
+    env.TARGET = 'browser';
+    compileUnitTests()
         .on('end', () => {
-            gulp.watch(path.join(SRC_PATH, '**/*.js'), () =>
-                jsCompile(env.TMP_PATH)
-            );
+            new karma.Server({
+                configFile: path.join(__dirname, 'karma.conf.js'),
+                singleRun: true,
+            }, done).start();
         });
 }
 
-function unit(done) {
-    env.NODE_ENV = 'test';
-    new karma.Server({
-        configFile: karmaConfig,
-        singleRun: true,
-    }, done).start();
+function execAndLog(cmd) {
+    let promise = exec(cmd);
+    let childProcess = promise.childProcess;
+    childProcess.stdout.on('data', (data) => {
+        console.log(data.toString());
+    });
+    childProcess.stderr.on('data', (data) => {
+        console.error(data.toString());
+    });
+    return promise;
 }
 
-function unitServer(done) {
+function unitNativescipt(platform, done) {
     env.NODE_ENV = 'test';
-    new karma.Server({
-        configFile: karmaConfig,
-        browsers: [],
-        singleRun: false,
-    }, done).start();
+    env.TARGET = 'node';
+    compileUnitTests()
+        .on('end', () => {
+            execAndLog('tns create Test --path .tmp')
+                .then(() => execAndLog('tns test init --path .tmp/Test --framework mocha'))
+                .then(() => execAndLog('cp .tmp/specs.js .tmp/Test/app/tests'))
+                .then(() => execAndLog(`tns test ${platform} --emulator --justlaunch --path .tmp/Test`))
+                .then(() => done())
+                .catch(() => {
+                    process.exit(1);
+                });
+        });
 }
 
-function unitWatch(done) {
-    env.NODE_ENV = 'test';
-    new karma.Server({
-        configFile: karmaConfig,
-        browsers: ['Chrome', 'Firefox'],
-    }, done).start();
+function unitNativesciptIOS(done) {
+    unitNativescipt('ios', done);
+}
+
+function unitNativesciptAndroid(done) {
+    unitNativescipt('android', done);
 }
 
 gulp.task('clean', clean);
-gulp.task('unit', unit);
-gulp.task('unit-server', unitServer);
-gulp.task('unit-watch', unitWatch);
 gulp.task('lint', lint);
-gulp.task('js', ['clean', 'lint'], jsMin);
-gulp.task('js-watch', jsWatch);
+gulp.task('js', ['clean', 'lint'], compile);
+gulp.task('unit-node', ['clean', 'lint'], unitNode);
+gulp.task('unit-browsers', ['clean', 'lint'], unitKarma);
+gulp.task('unit-nativescript-ios', ['clean', 'lint'], unitNativesciptIOS);
+gulp.task('unit-nativescript-android', ['clean', 'lint'], unitNativesciptAndroid);
 gulp.task('dist', ['js']);
 
 gulp.task('default', ['dist']);

@@ -40,30 +40,23 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'test/**/*.spec.js',
+            '.tmp/specs.js',
         ],
 
 
         // list of files to exclude
         exclude: [],
 
-        rollupPreprocessor: Object.assign({
-            sourceMap: false,
-            format: 'iife',
-        }, require('./rollup.config.js')),
-
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-        preprocessors: {
-            '**/*.js': ['rollup'],
-        },
+        preprocessors: {},
 
 
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
         reporters: [
-            process.env.CI ? 'dots' : 'progress',
+            process.env.CI ? 'dots' : 'mocha',
             'coverage',
         ],
 
@@ -118,47 +111,6 @@ module.exports = function(config) {
             },
             logLevel: config.LOG_ERROR,
         });
-
-        switch (process.env.CI_BUILD_TYPE) {
-        case 'saucelabs': {
-            const saucelabsBrowsers = require('./sl.browsers.js');
-            config.set({
-                retryLimit: 3,
-                browserDisconnectTimeout: 10000,
-                browserDisconnectTolerance: 1,
-                browserNoActivityTimeout: 4 * 60 * 1000,
-                captureTimeout: 4 * 60 * 1000,
-                reporters: ['dots', 'saucelabs', 'coverage'],
-                sauceLabs: {
-                    startConnect: false,
-                    options: {},
-                    username: process.env.SAUCE_USERNAME,
-                    accessKey: process.env.SAUCE_ACCESS_KEY,
-                    build: process.env.TRAVIS ?
-                        `TRAVIS # ${process.env.TRAVIS_BUILD_NUMBER} (${process.env.TRAVIS_BUILD_ID})` :
-                        undefined,
-                    tunnelIdentifier: process.env.TRAVIS ?
-                        process.env.TRAVIS_JOB_NUMBER :
-                        undefined,
-                    recordScreenshots: true,
-                },
-                customLaunchers: saucelabsBrowsers,
-                browsers: Object.keys(saucelabsBrowsers),
-            });
-            break;
-        }
-        default:
-            config.set({
-                customLaunchers: {
-                    Chrome_CI: {
-                        base: 'Chrome',
-                        flags: ['--no-sandbox'],
-                    },
-                },
-                browsers: ['Chrome_CI', 'Firefox'],
-            });
-            break;
-        }
     } else {
         config.set({
             coverageReporter: {
@@ -179,5 +131,59 @@ module.exports = function(config) {
                 ],
             },
         });
+    }
+
+    switch (process.env.BROWSER_PROVIDER) {
+        case 'saucelabs': {
+            const saucelabsBrowsers = require('./sauce.browsers.js');
+            config.set({
+                concurrency: 1,
+                retryLimit: 3,
+                browserDisconnectTimeout: 10000,
+                browserDisconnectTolerance: 1,
+                browserNoActivityTimeout: 4 * 60 * 1000,
+                captureTimeout: 4 * 60 * 1000,
+                reporters: ['dots', 'saucelabs', 'coverage'],
+                sauceLabs: {
+                    startConnect: true,
+                    connectOptions: {
+                        'no-ssl-bump-domains': 'all',
+                        'username': process.env.SAUCE_USERNAME,
+                        'accessKey': process.env.SAUCE_ACCESS_KEY,
+                    },
+                    options: {},
+                    build: process.env.TRAVIS ?
+                        `TRAVIS # ${process.env.TRAVIS_BUILD_NUMBER} (${process.env.TRAVIS_BUILD_ID})` :
+                        undefined,
+                    tunnelIdentifier: process.env.TRAVIS ?
+                        process.env.TRAVIS_JOB_NUMBER :
+                        undefined,
+                    recordScreenshots: true,
+                },
+                customLaunchers: saucelabsBrowsers,
+                browsers: Object.keys(saucelabsBrowsers),
+            });
+            break;
+        }
+        case 'electron': {
+            config.set({
+                browsers: ['Electron'],
+                client: {
+                    useIframe: false,
+                },
+            });
+            break;
+        } 
+        default:
+            config.set({
+                customLaunchers: {
+                    Chrome_CI: {
+                        base: 'Chrome',
+                        flags: ['--no-sandbox'],
+                    },
+                },
+                browsers: ['Chrome_CI', 'Firefox'],
+            });
+            break;
     }
 };

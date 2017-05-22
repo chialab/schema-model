@@ -34,7 +34,7 @@ describe('Unit: SchemaModel', () => {
     describe('empty schema model', () => {
         it('throws on instantiation', () => {
             let willThrow = () => { new SchemaModel({ id: 'throw' }); };
-            assert.throw(willThrow, Error, 'Missing schema');
+            assert.throws(willThrow, Error, 'Missing schema');
         });
     });
 
@@ -56,7 +56,7 @@ describe('Unit: SchemaModel', () => {
         it('should not set wrong values', () => {
             let model = new Model({ id: 'entry1', name: 'Alan' });
             let willThrow = () => { model.set('name', 2); };
-            assert.throw(willThrow, Error, 'Invalid type: number (expected string)');
+            assert.throws(willThrow, Error, 'Invalid type: number (expected string)');
             assert.equal(model.get('name'), 'Alan');
             assert.equal(model.name, 'Alan');
         });
@@ -66,7 +66,7 @@ describe('Unit: SchemaModel', () => {
             let willThrow = () => { model.set('children', [
                 { id: 'child1', name: 2 },
             ]); };
-            assert.throw(willThrow, Error, 'Invalid type: number (expected string)');
+            assert.throws(willThrow, Error, 'Invalid type: number (expected string)');
             assert.equal(model.get('name'), 'Alan');
             assert.equal(model.get('children').length, 0);
         });
