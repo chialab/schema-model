@@ -244,6 +244,7 @@ export class SchemaModel {
                 [data]: value,
             }, options);
         }
+        data = data || {};
         options = merge(DEFAULT_OPTIONS, value || {});
         if (!options.internal && options.validate) {
             let dataToValidate = merge(this.toJSON(true), data);
@@ -256,8 +257,6 @@ export class SchemaModel {
                     throw new Error(`Missing $ref schemas: ${res.missing.join(', ')}`);
                 }
                 throw new Error('Validation failed');
-            } else {
-                data = dataToValidate;
             }
         }
         set(this, data, options.internal);
