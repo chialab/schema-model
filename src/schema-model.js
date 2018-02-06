@@ -136,14 +136,19 @@ function getProperties(schema, validator) {
         validator = tv4.freshApi();
         validator.addSchema('', schema);
     }
+    if (schema.definitions) {
+        for (let k in schema.definitions) {
+            validator.addSchema(`#/definitions/${k}`, schema.definitions[k]);
+        }
+    }
     if (schema.$ref) {
         schema = validator.getSchema(schema.$ref);
     }
     if (schema.properties) {
         return clone(schema.properties);
-    } else if (root) {
+    } else {
         let res = {};
-        let defs = schema['anyOf'] || schema['allOf'] || schema['oneOf'];
+        let defs = schema['anyOf'] || schema['allOf'] || (root && schema['oneOf']);
         if (defs) {
             defs.forEach((def) => {
                 res = merge(res, getProperties(def, validator));
