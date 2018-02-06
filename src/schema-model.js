@@ -7,7 +7,7 @@ tv4.addFormat('date-time', (data) => {
     if ((data instanceof Date) && !isNaN(data.getTime())) {
         return null;
     }
-    return "Invalid date";
+    return 'Invalid date';
 });
 
 function isObject(val) {

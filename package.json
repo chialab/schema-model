@@ -1,6 +1,6 @@
 {
   "name": "@chialab/schema-model",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Generate Model classes based on JSON Schema definition.",
   "main": "dist/schema-model.js",
   "module": "index.js",
