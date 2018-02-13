@@ -51,10 +51,15 @@ install:
   - |
     if [ "$CI_BUILD_TYPE" = 'nativescript' ]; then
       nvm install 7
-      npm install -g nativescript
+      yarn global add nativescript
       tns usage-reporting disable
       tns error-reporting disable
       export CI_BUILD_TYPE="$CI_BUILD_TYPE-$TRAVIS_OS_NAME"
+    fi
+  - |
+    if [ "$CI_BUILD_TYPE" = 'electron' ]; then
+      nvm install 7
+      yarn global add electron
     fi
   - yarn global add @chialab/rna-cli
   - rna install
