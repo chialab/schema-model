@@ -1,4 +1,4 @@
-# @chialab/schema-model
+# SchemaModel
 
 Generate Model classes based on JSON Schema definition.
 [![NPM](https://img.shields.io/npm/v/@chialab/schema-model.svg)](https://www.npmjs.com/package/@chialab/schema-model)

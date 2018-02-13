@@ -7,6 +7,12 @@
   "scripts": {
     "build": "rna lint 'src/**/*.js' + build --production",
     "test": "rna unit --node --browsers",
+    "test-default": "rna unit --node",
+    "test-browsers": "rna unit --browsers",
+    "test-saucelabs": "rna unit --saucelabs",
+    "test-electron": "rna unit --electron",
+    "test-nativescript-ios": "rna unit --nativescript ios",
+    "test-nativescript-android": "rna unit --nativescript android",
     "lint": "rna lint 'src/**/*.js'"
   },
   "repository": {

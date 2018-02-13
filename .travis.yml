@@ -4,10 +4,6 @@ node_js:
   - 6
   - 7
 
-branches:
-  only:
-    - master
-
 env:
   global:
     - CI_BUILD_TYPE=default
@@ -60,15 +56,8 @@ install:
       tns error-reporting disable
       export CI_BUILD_TYPE="$CI_BUILD_TYPE-$TRAVIS_OS_NAME"
     fi
-  - npm install
-  - |
-    if [ "$CI_BUILD_TYPE" = 'electron' ]; then
-      npm install electron karma-electron-launcher
-    fi
-  - |
-    if [ "$CI_BUILD_TYPE" = 'saucelabs' ]; then
-      npm install karma-sauce-launcher
-    fi
+  - yarn global add @chialab/rna-cli
+  - rna install
 
 before_script:
   - |
