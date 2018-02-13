@@ -1,6 +1,9 @@
 /* eslint-env mocha */
-import { SchemaModel } from '../src/schema-model.js';
+import SchemaModel from '../../src/schema-model.js';
 import SCHEMA from './schema.json';
+import chai from 'chai';
+
+const assert = chai.assert;
 
 describe('Unit: SchemaModel', () => {
     describe('custom model creation', () => {
