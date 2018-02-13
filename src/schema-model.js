@@ -1,3 +1,10 @@
+/**
+ * SchemaModel
+ * (c) 2017 Chialab (http://www.chialab.it) <dev@chialab.io>
+ *
+ * Generate Model classes based on JSON Schema definition.
+ */
+
 import tv4 from 'tv4';
 
 tv4.addFormat('date-time', (data) => {

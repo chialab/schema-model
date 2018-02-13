@@ -1,11 +1,9 @@
-npm-debug.log
+# RNA-STRUCTURE
+.*
 /node_modules
-/bower_components
 /coverage
 /test
-.eslint*
-.editorconfig
-.git*
-.babelrc
-gulpfile.js
 rollup.config.js
+sauce.browsers.js
+karma.conf.js
+# RNA-STRUCTURE

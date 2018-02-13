@@ -1,6 +1,8 @@
-/.tmp
+# RNA-CORE
 /node_modules
-/bower_components
 /coverage
-/doc-template
 npm-debug.log
+# RNA-CORE
+# RNA-STRUCTURE
+dist
+# RNA-STRUCTURE
