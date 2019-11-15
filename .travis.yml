@@ -18,6 +18,6 @@ jobs:
         - yarn global add @chialab/rna-cli
         - yarn install
       script:
-        - rna unit --saucelabs --context test/unit/context.html
+        - rna unit --saucelabs
   allow_failures:
     - env: "CI_BUILD_TYPE=saucelabs"
