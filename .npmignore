@@ -1,11 +1,12 @@
-npm-debug.log
+# RNA
+.*
 /node_modules
-/bower_components
-/coverage
+/reports
 /test
-.eslint*
-.editorconfig
-.git*
-.babelrc
-gulpfile.js
 rollup.config.js
+sauce.browsers.js
+karma.conf.js
+yarn.lock
+package-lock.json
+
+# RNA

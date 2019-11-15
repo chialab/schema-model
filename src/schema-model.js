@@ -146,17 +146,15 @@ function getProperties(schema, validator) {
     }
     if (schema.properties) {
         return clone(schema.properties);
-    } else {
-        let res = {};
-        let defs = schema['anyOf'] || schema['allOf'] || (root && schema['oneOf']);
-        if (defs) {
-            defs.forEach((def) => {
-                res = merge(res, getProperties(def, validator));
-            });
-        }
-        return res;
     }
-    return {};
+    let res = {};
+    let defs = schema['anyOf'] || schema['allOf'] || (root && schema['oneOf']);
+    if (defs) {
+        defs.forEach((def) => {
+            res = merge(res, getProperties(def, validator));
+        });
+    }
+    return res;
 }
 
 const DEFAULT_OPTIONS = {
