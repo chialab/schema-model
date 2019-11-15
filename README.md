@@ -1,12 +1,30 @@
-# SchemaModel
+<p align="center">
+   <strong>SchemaModel</strong>
+</p>
 
-Generate Model classes based on [JSON Schema](http://json-schema.org/) definition.
+<p align="center">
+    Generate Model classes based on <a href="http://json-schema.org/">JSON Schema</a> definition.
+</p>
 
-[![Travis](https://img.shields.io/travis/Chialab/schema-model.svg?maxAge=2592000)](https://travis-ci.org/Chialab/schema-model)
-[![Code coverage](https://codecov.io/gh/Chialab/schema-model/graph/badge.svg)](https://codecov.io/gh/Chialab/schema-model)
-[![NPM](https://img.shields.io/npm/v/@chialab/schema-model.svg)](https://npmjs.org/packages/@chialab/schema-model)
+<p align="center">
+    <a href="https://travis-ci.org/chialab/schema-model">
+        <img alt="Travis status" src="https://img.shields.io/travis/chialab/schema-model.svg?style=flat-square">
+    </a>
+    <a href="https://codecov.io/gh/chialab/schema-model">
+        <img alt="Code coverage" src="https://img.shields.io/codecov/c/github/chialab/schema-model.svg?style=flat-square">
+    </a>
+    <a href="https://www.npmjs.com/package/@chialab/schema-model">
+        <img alt="NPM" src="https://img.shields.io/npm/v/@chialab/schema-model.svg?style=flat-square">
+    </a>
+    <a href="https://github.com/chialab/schema-model/blob/master/LICENSE">
+        <img alt="License" src="https://img.shields.io/npm/l/@chialab/schema-model.svg?style=flat-square">
+    </a>
+    <a href="https://saucelabs.com/u/chialab-sl-013">
+        <img alt="Saucelabs" src="https://badges.herokuapp.com/sauce/chialab-sl-013?labels=none&style=flat-square">
+    </a>
+</p>
 
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/chialab-sl-013.svg)](https://saucelabs.com/u/chialab-sl-013)
+---
 
 ## Install
 
