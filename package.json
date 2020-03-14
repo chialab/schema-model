@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:Chialab/schema-model.git"
+    "url": "git@github.com:chialab/schema-model.git"
   },
   "keywords": [
     "model",
@@ -23,19 +23,22 @@
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Chialab/schema-model/issues"
+    "url": "https://github.com/chialab/schema-model/issues"
   },
-  "homepage": "https://github.com/Chialab/schema-model#readme",
+  "homepage": "https://www.chialab.io/p/schema-model",
   "dependencies": {
     "tv4": "^1.2.7"
   },
   "scripts": {
     "build": "rna build --production",
     "watch": "rna build --watch",
-    "test": "rna lint + unit",
+    "test": "yarn test:browser && yarn test:node",
+    "test:browser": "rna unit 'test/*.spec.js' --coverage --browser",
+    "test:saucelabs": "rna unit 'test/*.spec.js' --coverage --saucelabs --concurrency 2",
+    "test:node": "rna unit 'test/*.spec.js' --coverage --node",
     "lint": "rna lint",
     "start": "yarn install --ignore-scripts && yarn watch",
-    "prepublish": "yarn run build"
+    "prepack": "yarn run build"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
