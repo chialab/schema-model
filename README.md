@@ -15,7 +15,14 @@
 ## Install
 
 ```sh
-npm install @chialab/schema-model --save
+$ npm install @chialab/schema-model
+# or
+$ yarn add @chialab/schema-model
+```
+
+Use via cdn:
+```html
+<script type="text/javascript" src="https://unpkg.com/@chialab/schema-model-js"></script>
 ```
 
 ## Usage
